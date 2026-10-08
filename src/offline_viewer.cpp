@@ -16,6 +16,9 @@ int main(int argc, char** argv) {
     ("help", "produce help message")                                               //
     ("map_path", value<std::string>(), "Input map path (dump directory)")          //
     ("config_path", value<std::string>()->default_value("config"), "Config path")  //
+    ("optimize", "Skip the optimization prompt for --map_path and enable it")      //
+    ("merge_base", value<std::string>(), "Base map name for the merged save target")  //
+    ("browse_dir", value<std::string>(), "Start folder for File > Open dialogs")      //
     ("debug", "Enable debug printing")                                             //
     ;
 
@@ -56,6 +59,12 @@ int main(int argc, char** argv) {
     spdlog::info("map_path={}", init_map_path);
   }
 
-  glim::OfflineViewer viewer(init_map_path);
+  std::string merge_base_name;
+  if (vm.count("merge_base")) {
+    merge_base_name = vm["merge_base"].as<std::string>();
+  }
+
+  const std::string browse_dir = vm.count("browse_dir") ? vm["browse_dir"].as<std::string>() : std::string();
+  glim::OfflineViewer viewer(init_map_path, vm.count("optimize") > 0, merge_base_name, browse_dir);
   viewer.wait();
 }
